@@ -12,6 +12,7 @@ use crate::array::Array;
 use crate::errors::CapacityError;
 use crate::maybe_uninit::MaybeUninit as MaybeUninitCopy;
 
+#[repr(transparent)]
 #[derive(Copy)]
 pub struct RawArrayString<A>
 where
@@ -21,14 +22,14 @@ where
 }
 
 impl<A> Default for RawArrayString<A>
-    where A: Array<Item=u8> + Copy
+where
+    A: Array<Item = u8> + Copy,
 {
     /// Return an empty `RawArrayString`
     fn default() -> RawArrayString<A> {
         RawArrayString::new()
     }
 }
-
 
 impl<A> RawArrayString<A>
 where
@@ -164,21 +165,22 @@ where
     /// assert_eq!(overflow2.unwrap_err().element(), "ef");
     /// ```
     pub fn try_push_str<'a>(&mut self, s: &'a str) -> Result<(), CapacityError<&'a str>> {
-        if s.len() > self.capacity() - self.len() {
-            return Err(CapacityError::new(s));
-        } else if s.len() == self.capacity() - self.len() {
-            unsafe {
-                let dst = self.xs.ptr_mut().offset(self.len() as isize);
+        let remaining_capacity = self.capacity() - self.len();
+        match s.len() {
+            len if len > remaining_capacity => {
+                return Err(CapacityError::new(s));
+            }
+            len if len == remaining_capacity => unsafe {
+                let dst = self.xs.ptr_mut().add(self.len());
                 let src = s.as_ptr();
                 ptr::copy_nonoverlapping(src, dst, s.len());
-            }
-        } else {
-            unsafe {
-                let dst = self.xs.ptr_mut().offset(self.len() as isize);
+            },
+            _ => unsafe {
+                let dst = self.xs.ptr_mut().add(self.len());
                 let src = s.as_ptr();
                 ptr::copy_nonoverlapping(src, dst, s.len());
                 *((dst as usize + s.len()) as *mut u8) = 0u8;
-            }
+            },
         }
 
         Ok(())
