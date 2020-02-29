@@ -1,0 +1,22 @@
+[package]
+name = "raw_array_string"
+version = "0.1.0"
+authors = ["dskkato <dkato@topcon.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.serde]
+version = "1.0"
+optional = true
+default-features = true
+
+[dev-dependencies.serde_test]
+version = "1.0"
+
+[features]
+default = ["std"]
+std = []
+
+array-sizes-33-128 = []
+array-sizes-129-255 = []
