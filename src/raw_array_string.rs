@@ -291,7 +291,7 @@ where
 
 #[cfg(feature = "serde")]
 /// Requires crate feature `"serde"`
-impl<A> Serialize for RawArrayString<A>
+impl<A> Serialize for ArrayString<A>
 where
     A: Array<Item = u8> + Copy,
 {
@@ -305,7 +305,7 @@ where
 
 #[cfg(feature = "serde")]
 /// Requires crate feature `"serde"`
-impl<'de, A> Deserialize<'de> for RawArrayString<A>
+impl<'de, A> Deserialize<'de> for ArrayString<A>
 where
     A: Array<Item = u8> + Copy,
 {
@@ -316,9 +316,9 @@ where
         use serde::de::{self, Visitor};
         use std::marker::PhantomData;
 
-        struct RawArrayStringVisitor<A: Array>(PhantomData<A>);
+        struct ArrayStringVisitor<A: Array>(PhantomData<A>);
 
-        impl<'de, A: Copy + Array<Item = u8>> Visitor<'de> for RawArrayStringVisitor<A> {
+        impl<'de, A: Copy + Array<Item = u8>> Visitor<'de> for ArrayStringVisitor<A> {
             type Value = RawArrayString<A>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -347,6 +347,6 @@ where
             }
         }
 
-        deserializer.deserialize_str(RawArrayStringVisitor::<A>(PhantomData))
+        deserializer.deserialize_str(ArrayStringVisitor::<A>(PhantomData))
     }
 }
