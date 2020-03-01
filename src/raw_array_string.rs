@@ -12,7 +12,6 @@ use crate::array::Array;
 use crate::errors::CapacityError;
 use crate::maybe_uninit::MaybeUninit as MaybeUninitCopy;
 
-#[repr(transparent)]
 #[derive(Copy)]
 pub struct RawArrayString<A>
 where
