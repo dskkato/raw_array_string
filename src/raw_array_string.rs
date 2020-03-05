@@ -202,6 +202,37 @@ where
     pub fn push_str(&mut self, s: &str) {
         self.try_push_str(s).unwrap()
     }
+
+    /// Get reference to internal buffer.
+    ///
+    /// ```
+    /// use raw_array_string::RawArrayString;
+    ///
+    /// let string = RawArrayString::<[_; 2]>::new();
+    ///
+    /// assert_eq!(string.ref_buf()[0], 0u8);
+    /// ```
+    #[doc(hidden)]
+    pub fn ref_buf(&self) -> &[u8] {
+        unsafe { slice::from_raw_parts(self.xs.ptr(), A::CAPACITY) }
+    }
+
+    /// Get mutable reference to internal buffer.
+    ///
+    /// ```
+    /// use raw_array_string::RawArrayString;
+    ///
+    /// let mut string = RawArrayString::<[_; 2]>::new();
+    ///
+    /// let mut ref_buf  = string.mut_ref_buf();
+    /// ref_buf[0] = 0x41;
+    /// ref_buf[1] = 0x00;
+    /// assert_eq!(&*string, "A");
+    /// ```
+    #[doc(hidden)]
+    pub fn mut_ref_buf(&mut self) -> &mut [u8] {
+        unsafe { slice::from_raw_parts_mut(self.xs.ptr_mut(), A::CAPACITY) }
+    }
 }
 
 impl<A> Clone for RawArrayString<A>
