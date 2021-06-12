@@ -5,6 +5,8 @@ use std::slice;
 use std::str;
 use std::str::Utf8Error;
 
+use encoding::{self, Encoding};
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -308,7 +310,14 @@ where
     A: Array<Item = u8> + Copy,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        (**self).fmt(f)
+        // let (cow, encoding_used, had_errors) = SHIFT_JIS.decode(self.as_bytes());
+        let s = encoding::codec::japanese::Windows31JEncoding
+            .decode(self.as_bytes(), encoding::DecoderTrap::Strict);
+
+        match s {
+            Ok(s) => s.fmt(f),
+            Err(s) => s.fmt(f),
+        }
     }
 }
 
@@ -317,7 +326,19 @@ where
     A: Array<Item = u8> + Copy,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        (**self).fmt(f)
+        let s = encoding::codec::japanese::Windows31JEncoding
+            .decode(self.as_bytes(), encoding::DecoderTrap::Strict);
+
+        match s {
+            Ok(s) => s.fmt(f),
+            Err(s) => s.fmt(f),
+        }
+        //let (cow, encoding_used, had_errors) = SHIFT_JIS.decode(self.as_bytes());
+        //if had_errors {
+        //    "fmm...".fmt(f)
+        //} else {
+        //    cow.fmt(f)
+        //}
     }
 }
 
